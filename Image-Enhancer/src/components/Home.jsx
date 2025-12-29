@@ -16,7 +16,7 @@ const Home = () => {
 
       //call the API to enhance the image
       const enhancedURL = await enhancedImageAPI(file);
-      setEnhancedImage(enhancedURL.image);
+      setEnhancedImage(enhancedURL.imageq);
       setLoading(false);
 
     } catch(error) {

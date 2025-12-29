@@ -1,15 +1,14 @@
-// api/upload.js
-import axios from 'axios';
-import FormData from 'form-data';
+const axios = require('axios');
+const FormData = require('form-data');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   const { imageBase64 } = req.body;
-  const API_KEY = process.env.PICWISH_API_KEY; // Only exists on server
+  const API_KEY = process.env.PICWISH_API_KEY;
 
   try {
-    // Convert Base64 back to a Buffer for the API
+    // Convert Base64 back to a Buffer
     const buffer = Buffer.from(imageBase64.split(',')[1], 'base64');
     
     const formData = new FormData();
@@ -27,4 +26,4 @@ export default async function handler(req, res) {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
-}
+};
