@@ -12,25 +12,28 @@ const MAXIMUM_RETRIES = 20;
 
 export const enhancedImageAPI = async (file) => {
     try {
-        // 1. Convert file to Base64 for easier transport to Vercel
         const base64File = await toBase64(file);
 
-        // 2. Upload to YOUR Vercel backend (not PicWish directly)
+        
         const taskId = await uploadImage(base64File);
         console.log("Image uploaded. Task ID: ", taskId);
 
-        // 3. Poll your Vercel backend
+        
         const enhancedImageData = await PollForEnhancedImage(taskId);
-        console.log("Image enhanced:", enhancedImageData);
+        console.log("Full API Response:", enhancedImageData); 
 
-        return enhancedImageData;
+       
+        if (enhancedImageData?.image) {
+            return enhancedImageData.image; 
+        } else {
+            throw new Error("API finished but no image URL found.");
+        }
 
     } catch (error) {
         console.log("Error enhancing the image: ", error.message);
-        throw error; // Re-throw so your UI knows it failed
+        throw error;
     }
 }
-
 const uploadImage = async (base64File) => {
     // Call your own Vercel API endpoint
     const { data } = await axios.post('/api/upload', { 
