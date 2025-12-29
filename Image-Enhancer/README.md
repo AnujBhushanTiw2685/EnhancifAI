@@ -12,11 +12,12 @@
 - **Project Name**: image-enhancer
 - **Version**: 0.0.0
 - **Type**: ES Module (Modern JavaScript)
-- **Project Structure**: 4 Component files, 1 API utility, 2 CSS files, 1 Configuration file
+- **Repository**: EnhancifAI (AnujBhushanTiw2685/EnhancifAI)
+- **Project Structure**: 4 Component files, 1 API utility, 2 CSS files, 3 Configuration files
 
 ### Technology Stack & Dependencies
 
-#### Production Dependencies (4 packages)
+#### Production Dependencies (5 packages)
 | Package | Version |
 |---------|---------|
 | React | 19.1.0 |
@@ -55,13 +56,14 @@
 
 ### File Structure
 ```
-Total Files: 12
+Total Files: 13
 - Configuration Files: 3 (package.json, vite.config.js, eslint.config.js)
-- Component Files: 4 (.jsx)
-- Utility Files: 1 (.jsx)
-- CSS Files: 2 (.css)
-- HTML Files: 1 (.html)
+- Component Files: 4 (Home.jsx, ImagePreview.jsx, ImageUpload.jsx, Loading.jsx)
+- Utility Files: 1 (enhancedImageAPI.jsx)
+- CSS Files: 2 (App.css, index.css)
+- HTML Files: 1 (index.html)
 - Documentation: 1 (README.md)
+- API Backend: 2 (status.js, upload.js)
 ```
 
 ### CSS Framework
@@ -191,21 +193,25 @@ Image-Enhancer/
 ├── src/
 │   ├── components/
 │   │   ├── Home.jsx              # Main state management component
-│   │   ├── ImageUpload.jsx       # File upload input component
-│   │   ├── ImagePreview.jsx      # Side-by-side image display
-│   │   └── Loading.jsx           # Loading spinner animation
+│   │   ├── ImageUpload.jsx       # File upload input component with drag-drop
+│   │   ├── ImagePreview.jsx      # Side-by-side original & enhanced image display
+│   │   └── Loading.jsx           # Loading spinner animation component
 │   ├── utils/
-│   │   └── enhancedImageAPI.jsx  # API integration & polling logic
-│   ├── App.jsx                   # Root component with layout
-│   ├── main.jsx                  # React app initialization
-│   ├── index.css                 # Global styles
-│   └── App.css                   # App-specific styles
-├── public/                        # Static assets
+│   │   └── enhancedImageAPI.jsx  # API integration & smart polling logic
+│   ├── App.jsx                   # Root component with main layout
+│   ├── main.jsx                  # React app initialization & entry point
+│   ├── index.css                 # Global styles & reset
+│   └── App.css                   # App-specific component styles
+├── api/
+│   ├── upload.js                 # Backend upload handler
+│   ├── status.js                 # Backend status checker
+│   └── package.json              # Backend dependencies
+├── public/                        # Static assets directory
 ├── index.html                     # HTML entry point
-├── package.json                   # Dependencies & scripts
-├── vite.config.js                # Vite configuration
-├── eslint.config.js              # ESLint rules
-└── README.md                      # This file
+├── package.json                   # Frontend dependencies & npm scripts
+├── vite.config.js                # Vite bundler configuration
+├── eslint.config.js              # ESLint code quality rules
+└── README.md                      # This documentation file
 ```
 
 ---
