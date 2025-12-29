@@ -1,81 +1,82 @@
 import axios from 'axios';
 
-const API_KEY = process.env.REACT_APP_API_KEY;
-const BASE_URL = process.env.REACT_APP_BASE_URL;
+// Helper to convert File to Base64
+const toBase64 = (file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
+
 const MAXIMUM_RETRIES = 20;
 
-
-
-
 export const enhancedImageAPI = async (file) => {
-    // return "hello";
+    try {
+        // 1. Convert file to Base64 for easier transport to Vercel
+        const base64File = await toBase64(file);
 
-    try{
-        //code to upload image 
-        // /api/tasks/visual/scale 
+        // 2. Upload to YOUR Vercel backend (not PicWish directly)
+        const taskId = await uploadImage(base64File);
+        console.log("Image uploaded. Task ID: ", taskId);
 
-        // code to enhance image
-        // /api/tasks/visual/scale/{task_id}
-        const taskId = await uploadImage(file);
-        console.log("Image uploaded successfully. Task ID: ", taskId);
-
+        // 3. Poll your Vercel backend
         const enhancedImageData = await PollForEnhancedImage(taskId);
-        console.log("Image enhanced successfully. Enhanced Image URL: ", enhancedImageData);
+        console.log("Image enhanced:", enhancedImageData);
 
         return enhancedImageData;
 
-    }catch(error){
+    } catch (error) {
         console.log("Error enhancing the image: ", error.message);
+        throw error; // Re-throw so your UI knows it failed
     }
 }
 
-const uploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append('image_file', file);
+const uploadImage = async (base64File) => {
+    // Call your own Vercel API endpoint
+    const { data } = await axios.post('/api/upload', { 
+        imageBase64: base64File 
+    });
 
-    const {data} = await axios.post(`${BASE_URL}/api/tasks/visual/scale/`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            'X-API-KEY': API_KEY,
-
-
-        },
-    }    
-    );
-
-    if(!data?.data?.task_id){
+    if (!data?.data?.task_id) {
         throw new Error("Error uploading image! Task ID not found.");
     }
     return data.data.task_id;
-    // console.log(data)
+}
 
-    // return taskId;
- }
 const fetchEnhancedImage = async (taskId) => {
-    const {data} = await axios.get(`${BASE_URL}/api/tasks/visual/scale/${taskId}`, {
-        headers: {
-            'X-API-KEY': API_KEY,
-        },
-    });
-    if(!data?.data?.task_id){
-        throw new Error("Error fetching enhanced image! Image not found.");
+    // Call your own Vercel API endpoint
+    const { data } = await axios.get(`/api/status?taskId=${taskId}`);
+    
+    if (!data?.data?.task_id) {
+        throw new Error("Error fetching status! Image not found.");
     }
     return data.data;
-    
- };
+};
 
 const PollForEnhancedImage = async (taskId, retries = 0) => {
     const result = await fetchEnhancedImage(taskId);
-    if(result.state === 4){
-        console.log("Processing...");
-
-        if(retries >= MAXIMUM_RETRIES) {
-            throw new Error("Max retries reached. Please try again later.");    
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        return PollForEnhancedImage(taskId, retries + 1);
+    
+    // Check if processing (State 4 usually means "Processing" in PicWish)
+    // Adjust this check based on PicWish docs if 'state' codes differ
+    if (result.state !== 1) { // Assuming 1 = Success. If 4 is processing, keep your logic.
+       // YOUR LOGIC WAS: if(result.state === 4) ... 
+       // Make sure you know which state number means "Success" vs "Processing"
+       
+       if(result.state === 1) { 
+           return result; // Done!
+       } else if (result.state < 0) {
+           throw new Error("Image processing failed on server.");
+       }
+       
+       // Still processing...
+       console.log("Processing...");
+       if (retries >= MAXIMUM_RETRIES) {
+           throw new Error("Max retries reached.");
+       }
+       
+       await new Promise((resolve) => setTimeout(resolve, 2000));
+       return PollForEnhancedImage(taskId, retries + 1);
     }
-    return result
+    
+    return result;
 }
